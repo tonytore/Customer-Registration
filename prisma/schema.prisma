@@ -1,0 +1,206 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+model customer {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  email   String   @unique
+  firstname    String
+  lastname    String
+  phone    String
+	createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Coupon {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  couponCode String
+  expiryDate DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Banner {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  title String
+  imageUrl  String
+  link  String
+  isActive Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+
+model Category {
+   id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  title      String 
+  slug       String @unique
+  imageUrl  String?
+  description String?   
+  isActive   Boolean
+  
+  products  Product[]  
+  trainings Training[]
+  
+  marketIds String[] @db.ObjectId
+  markets   Market[]   @relation(fields: [marketIds], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Staff {
+   id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  fullname      String 
+  nin  String
+  dob  DateTime
+  email  String
+  password String
+  phone String 
+  physicalAddress String
+  notes  String
+  isActive   Boolean
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Market {
+  id          String     @id @default(auto()) @map("_id") @db.ObjectId
+  title      String 
+  slug       String @unique
+  imageUrl  String?
+  description String?   
+  isActive   Boolean
+
+
+  categoryId String[]   @db.ObjectId
+  category  Category[] @relation(fields: [categoryId], references: [id])
+
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime?  @updatedAt
+}
+
+
+
+model Product {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  title      String 
+  slug   String  @unique
+ sku       String ?
+  barcode  String?
+  imageUrl  String?
+ description String?  
+ price Int
+ sale  Int
+  isActive   Boolean
+ isWholeSale  Boolean
+  productCode   String?
+  unit   Int?
+  productStock Int
+  Qty   Int
+  wholesalePrice  Int?
+  wholesaleQty  Int?
+  tags  String[]
+
+
+  categoryId String   @db.ObjectId
+  category  Category @relation(fields: [categoryId], references: [id])
+ 
+
+  user   User  @relation(fields: [userId], references: [id])
+  userId  String   @db.ObjectId  @unique
+
+  
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Training {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  title      String 
+  slug   String  @unique
+  imageUrl  String?
+  description String? 
+  isActive   Boolean
+  content   String?
+
+  categoryId String[] @db.ObjectId
+  category   Category  @relation(fields: [categoryId], references: [id])
+  
+
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime @updatedAt
+
+}
+
+
+
+
+enum UserRole{
+  ADMIN
+  USER
+  FARMER
+  MODERATOR
+}
+
+
+
+
+model User {
+  id       String    @id @default(auto()) @map("_id") @db.ObjectId
+  name          String?
+  email         String?   @unique
+  password      String
+ 
+  emailVerified DateTime?
+
+
+  products Product[]
+
+  role          UserRole @default(USER)
+
+  farmer   Farmer?
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+ 
+}
+
+
+model Farmer {
+  id      String   @id @default(auto()) @map("_id") @db.ObjectId
+  name String
+  phone    String
+  email String
+  physicalAddress String
+  contactPerson String
+  contactPersonPhone String
+  imageUrl  String?
+  terms  String
+  notes String
+  isActive Boolean
+  code  String
+  landSize  Int
+  mainCrop  String
+  products   String[]
+  
+
+  user   User @relation(fields: [userId], references: [id])
+  userId  String  @db.ObjectId  @unique
+
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
